@@ -6,6 +6,9 @@ public class EnemyTank extends Tank{
 
     private boolean isAlive = true;
 
+
+    Vector<Bullet> bullets = new Vector<>();
+
     public void setAlive(boolean alive) {
         isAlive = alive;
     }
@@ -14,7 +17,6 @@ public class EnemyTank extends Tank{
         return isAlive;
     }
 
-    Vector<Bullet> bullets = new Vector<>();
     public EnemyTank(int x, int y, int speed, int direction) {
         super(x, y, speed, direction);
     }

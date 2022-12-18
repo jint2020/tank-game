@@ -1,9 +1,9 @@
 package com.jt.tank;
 
 public class Bomb {
-    private int x,y;
-    private int life = 9;
-    private boolean isAlive;
+    int x,y;
+    int life = 9;
+    boolean isAlive;
 
     public Bomb(int x, int y) {
         this.x = x;
@@ -16,5 +16,17 @@ public class Bomb {
         }else {
             isAlive = false;
         }
+    }
+
+    public int getLife() {
+        return life;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }

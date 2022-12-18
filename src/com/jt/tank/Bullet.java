@@ -6,15 +6,13 @@ public class Bullet implements Runnable{
     private int y;//
     private int speed;
     private int direction;
-    private int bulletType;
     private boolean isAlive = true;
 
-    public Bullet(int x, int y, int speed, int direction,int bulletType) {
+    public Bullet(int x, int y, int speed, int direction) {
         this.x = x;
         this.y = y;
         this.speed = speed;
         this.direction = direction;
-        this.bulletType = bulletType;
     }
 
     public int getX() {
@@ -49,13 +47,6 @@ public class Bullet implements Runnable{
         this.direction = direction;
     }
 
-    public int getBulletType() {
-        return bulletType;
-    }
-
-    public void setBulletType(int bulletType) {
-        this.bulletType = bulletType;
-    }
 
     public boolean isAlive() {
         return isAlive;
@@ -66,10 +57,10 @@ public class Bullet implements Runnable{
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         while (true){
             //判断方向
-            switch (getDirection()) {
+            switch (direction) {
                 //向前
                 case 0:
                     y -= speed;
