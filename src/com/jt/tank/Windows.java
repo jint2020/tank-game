@@ -16,7 +16,7 @@ public class Windows extends JFrame {
         new Thread(gp).start();
         this.add(gp);
         this.addKeyListener(gp);
-        this.setSize(1000,750);
+        this.setSize(1000,775);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }

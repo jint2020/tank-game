@@ -9,35 +9,32 @@ import java.util.Vector;
 public class GamePanel extends JPanel implements KeyListener,Runnable {
     HeroTank hTank = null;
     Vector<EnemyTank> enemyTanks = new Vector<>(); //敌方坦克Vector数组
-    int numOfEnemyTanks = 5; //5辆敌方坦克
-
+    int numOfEnemyTanks = 5; //3辆敌方坦克
     Vector<Bomb> bombs = new Vector<>();
     //int numOfBombs = 5;
 
-    Image imageOne;
-    Image imageTwo;
-    Image imageThree;
+    private final Image imageOne = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_1.gif"));
+    private final Image imageTwo = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_2.gif"));
+    private final Image imageThree = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_3.gif"));
 
 
     public GamePanel() {
         //一部我方坦克，绘制出生位置
-        hTank = new HeroTank(500, 100,8,0);
+        hTank = new HeroTank(500, 100,10,0,true);
         //敌方坦克，用Vector作为容器
         for(int i = 0; i<numOfEnemyTanks;i++){
-            EnemyTank et = new EnemyTank(100*(i+1),0,6,1);
+            EnemyTank et = new EnemyTank(150*(i+1),0,2,1,true);
+            Thread thread = new Thread(et);
+            thread.start();
             //每颗子弹的位置
             //Bullet bt = new Bullet(et.getX()+20,et.getY()+60,2,et.getDirection(),1);
-            Bullet bt = new Bullet(et.getX()+20,et.getY()+60,2,et.getDirection());
+            //Bullet bt = new Bullet(et.getX(),et.getY()+60,2,et.getDirection());
             //把5颗子弹添加到EnemyTank类里面的bullets数组里
-            et.bullets.add(bt);
+            //et.bullets.add(bt);
             //启动子弹线程
-            new Thread(bt).start();
+            //new Thread(bt).start();
             enemyTanks.add(et);
         }
-        //初始化图片对象
-        imageOne = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_1.gif"));
-        imageTwo = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_2.gif"));
-        imageThree = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bomb_3.gif"));
     }
 
     @Override
@@ -45,31 +42,17 @@ public class GamePanel extends JPanel implements KeyListener,Runnable {
         super.paint(g);
         g.fillRect(0, 0, 1000, 750);//填充矩形 - 作为游戏背景
         //绘制我方坦克
-        drawTank(hTank.getX(), hTank.getY(), g, hTank.getDirection(), 0);
-        //绘制子弹
-        if (hTank.b != null && hTank.b.isAlive()) {//判断子弹线程的有效性
-            //绘制我方坦克的子弹
-            g.setColor(Color.cyan);
-            g.fillOval(hTank.b.getX()-1,hTank.b.getY(),5,5);
-        }
-        //绘制敌方坦克和子弹
-        for (int i = 0; i < enemyTanks.size(); i++) {
-            EnemyTank enemyTank = enemyTanks.get(i);
-            if (enemyTank.isAlive()) {
-                drawTank(enemyTank.getX(),enemyTank.getY(),g,enemyTank.getDirection(),1);
-                g.setColor(Color.cyan);
-            }else {
-                enemyTanks.remove(enemyTank);
-            }
-            //每一辆敌方坦克有一个保存5枚子弹的数组
-            for (int j = 0; j < enemyTank.bullets.size(); j++) {//遍历数组取出子弹
-                Bullet bullet = enemyTank.bullets.get(j);
-                if (bullet.isAlive()) { //判断子弹线程有效性
-                    ////绘制地方坦克的子弹
-                    g.setColor(Color.orange);
-                    g.fillOval(bullet.getX(),bullet.getY(),5,5);
+        if (hTank.isAlive()) {
+            drawTank(hTank.getX(), hTank.getY(), g, hTank.getDirection(), 0);
+            //绘制可以连续发射的子弹
+            for (int i = 0; i < hTank.bullets.size(); i++) {//遍历数组取出子弹
+                Bullet b = hTank.bullets.get(i);
+                if (b != null && b.isAlive()) { //判断子弹线程有效性
+                    ////绘制地方坦克的子弹'
+                    g.setColor(Color.cyan);
+                    g.draw3DRect(b.getX(),b.getY(),4,4,false);
                 }else { //如果子弹线程失效，从数组移除该子弹
-                    enemyTank.bullets.remove(bullet);
+                    hTank.bullets.remove(b);
                 }
             }
         }
@@ -77,54 +60,45 @@ public class GamePanel extends JPanel implements KeyListener,Runnable {
         for (int i = 0; i < bombs.size(); i++) {
             Bomb b = bombs.get(i);
             if (b.getLife() > 6) {
-                g.drawImage(imageOne,b.getX(),b.getX(),60,60,this);
+                System.out.println("image一爆了");
+                g.drawImage(imageOne,b.getX(),b.getY(),60,60,this);
+                System.out.println("x轴坐标为"+b.getX()+" y轴坐标为"+b.getY());
             } else if (b.getLife() > 3) {
-                g.drawImage(imageTwo,b.getX(),b.getX(),60,60,this);
+                System.out.println("image二爆了");
+                g.drawImage(imageTwo,b.getX(),b.getY(),60,60,this);
+                System.out.println("x轴坐标为"+b.getX()+" y轴坐标为"+b.getY());
+
             } else {
-                g.drawImage(imageThree,b.getX(),b.getX(),60,60,this);
+                System.out.println("image三爆了");
+                g.drawImage(imageThree,b.getX(),b.getY(),60,60,this);
+                System.out.println("x轴坐标为"+b.getX()+" y轴坐标为"+b.getY());
             }
             b.lifeDown();
             if (b.getLife() == 0) {
                 bombs.remove(b);
             }
         }
-    }
+        //绘制敌方坦克和子弹
+        for (int i = 0; i < enemyTanks.size(); i++) {
+            EnemyTank enemyTank = enemyTanks.get(i);
 
-    /**
-     * @param bullet
-     * @param enemyTank
-     *
-     * 判断子弹集中敌方坦克
-     */
-    public void hitCheck(Bullet bullet, EnemyTank enemyTank){
-        switch (enemyTank.getDirection()){
-            //判断
-            //向前 0 ，向后 1 ，向右 2 ，向左 3
-            case 0:
-            case 1:
-                if (bullet.getX() > enemyTank.getX()
-                        && bullet.getX() < enemyTank.getX()+40
-                        && bullet.getY() > enemyTank.getY()
-                        && bullet.getY() < enemyTank.getY()+60) {
-                    bullet.setAlive(false);
-                    enemyTank.setAlive(false);
-                    //enemyTanks.remove(enemyTank);
-                    Bomb bomb = new Bomb(enemyTank.getX(), enemyTank.getY());
-                    bombs.add(bomb);
+            if (enemyTank.isAlive()) {
+                drawTank(enemyTank.getX(),enemyTank.getY(),g,enemyTank.getDirection(),1);
+                g.setColor(Color.cyan);
+                //每一辆敌方坦克有一个保存5枚子弹的数组
+                for (int j = 0; j < enemyTank.bullets.size(); j++) {//遍历数组取出子弹
+                    Bullet bullet = enemyTank.bullets.get(j);
+                    if (bullet.isAlive() ) { //判断子弹线程有效性
+                        ////绘制地方坦克的子弹
+                        g.setColor(Color.orange);
+                        g.draw3DRect(bullet.getX(),bullet.getY(),4,4,false);
+                    }else { //如果子弹线程失效，从数组移除该子弹
+                        enemyTank.bullets.remove(bullet);
+                    }
                 }
-                break;
-            case 2:
-            case 3:
-                if (bullet.getX() > enemyTank.getX()
-                        && bullet.getX() < enemyTank.getX()+60
-                        && bullet.getY() > enemyTank.getY()
-                        && bullet.getY() < enemyTank.getY()+40) {
-                    bullet.setAlive(false);
-                    enemyTank.setAlive(false);
-                    Bomb bomb = new Bomb(enemyTank.getX(), enemyTank.getY());
-                    bombs.add(bomb);
-                }
-                break;
+            }else {
+                enemyTanks.remove(enemyTank);
+            }
         }
     }
 
@@ -204,10 +178,13 @@ public class GamePanel extends JPanel implements KeyListener,Runnable {
             hTank.moveLeft();
         }
         if (e.getKeyCode() == KeyEvent.VK_J) {
-            //b = new Bullet(hTank.getX(), hTank.getY(),2,hTank.getDirection(),0);
-            //b.start();
+            //检测子弹线程已经销毁后，再发射第二颗子弹
+            //if (hTank.b == null || hTank.b.isAlive()) {
+            //hTank.shot();
+            //}
+            //使用定义好的方法shot()方法，连续按键，连续发射子弹，延迟为50毫秒
             hTank.shot();
-
+            delay(100);
         }
         if (e.getKeyCode() == KeyEvent.VK_HOME) {
             hTank.setDirection(0);
@@ -220,19 +197,82 @@ public class GamePanel extends JPanel implements KeyListener,Runnable {
     @Override
     public void keyReleased(KeyEvent e) {}
 
+    /**
+     * @param bullet
+     * @param tank
+     * 判断子弹击中坦克的情况
+     */
+    public void hitCheck(Bullet bullet, Tank tank){
+        switch (tank.getDirection()){
+            //判断
+            //向前 0 ，向后 1 ，向右 2 ，向左 3
+            case 0:
+            case 1:
+                if (bullet.getX() > tank.getX()
+                        && bullet.getX() < tank.getX()+40
+                        && bullet.getY() > tank.getY()
+                        && bullet.getY() < tank.getY()+60) {
+                    Bomb bomb = new Bomb(tank.getX(), tank.getY());
+                    bombs.add(bomb);
+                    bullet.setAlive(false);
+                    tank.setAlive(false);
+                    //enemyTanks.remove(enemyTank);
+                }
+                break;
+            case 2:
+            case 3:
+                if (bullet.getX() > tank.getX()
+                        && bullet.getX() < tank.getX()+60
+                        && bullet.getY() > tank.getY()
+                        && bullet.getY() < tank.getY()+40) {
+                    Bomb bomb = new Bomb(tank.getX(), tank.getY());
+                    bombs.add(bomb);
+                    bullet.setAlive(false);
+                    tank.setAlive(false);
+                }
+                break;
+        }
+    }
+    public void hitCheckEnemyTank(){
+        for (int i = 0; i < hTank.bullets.size(); i++) {
+            Bullet b  = hTank.bullets.get(i);
+            for (int j = 0; j < enemyTanks.size(); j++) {
+                EnemyTank et = enemyTanks.get(j);
+                if (b != null && b.isAlive()) {
+                    hitCheck(b,et);
+                }else {
+                    hTank.bullets.remove(b);
+                }
+            }
+        }
+    }
+    public void hitCheckHeroTank(){
+        for (int i = 0; i < enemyTanks.size(); i++) {
+            EnemyTank enemyTank = enemyTanks.get(i);
+            for (int j = 0; j < enemyTank.bullets.size(); j++) {//遍历数组取出子弹
+                Bullet bullet = enemyTank.bullets.get(j);
+                if (bullet.isAlive()) { //判断子弹线程有效性
+                    hitCheck(bullet,hTank);
+                }else { //如果子弹线程失效，从数组移除该子弹
+                    enemyTank.bullets.remove(bullet);
+                }
+            }
+        }
+    }
+
+    public void delay(int millis){
+        try {
+            Thread.sleep(millis);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+    }
     @Override
     public void run() {
         while (true){
-            try {
-                Thread.sleep(100);
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-            if (hTank.b != null && hTank.b.isAlive()) {
-                for (EnemyTank et:enemyTanks) {
-                    hitCheck(hTank.b,et);
-                }
-            }
+            delay(100);
+            hitCheckEnemyTank();
+            hitCheckHeroTank();
             this.repaint();
         }
     }

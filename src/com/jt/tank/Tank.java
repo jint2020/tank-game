@@ -1,5 +1,7 @@
 package com.jt.tank;
 
+import java.util.Vector;
+
 /**
  * 坦克父类
  */
@@ -9,12 +11,14 @@ public class Tank {
 
     private int speed = 1;
     private int direction;
+    private boolean isAlive = true;
 
-    public Tank(int x, int y, int speed, int direction) {
+    public Tank(int x, int y, int speed, int direction, boolean isAlive) {
         this.x = x;
         this.y = y;
         this.speed = speed;
         this.direction = direction;
+        this.isAlive = isAlive;
     }
 
     public int getSpeed() {
@@ -51,34 +55,38 @@ public class Tank {
 
     public void moveUp(){
         //设置上方边缘数值控制,并向上移动
-        if (y <= 0) {
-            y=0;
-        } else {
-            y-=speed;
+        if (y > 0) {
+            y -= speed;
         }
+
     }
     public void moveDown(){
         //设置下方边缘数值控制,并向下移动
-        if (y >= 640) {
-            y = 640;
-        } else {
+        if (y+60 < 750) {
             y+=speed;
         }
     }
     public void moveLeft(){
         //设置左方边缘数值控制,并向左移动
-        if (x <= 0) {
-            x=0;
-        } else {
+        if (x >= 0) {
             x-=speed;
         }
     }
     public void moveRight(){
         //设置右方边缘数值控制,并向右移动
-        if (x >= 940) {
-            x=940;
-        } else {
+        if (x+60 < 1000) {
             x+=speed;
         }
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public void setAlive(boolean alive) {
+        isAlive = alive;
+    }
+
+    public void shot(){
     }
 }
